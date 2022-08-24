@@ -27,9 +27,12 @@ router.post("/register", function (req, res, next) {
   if (storage.getItem("token")) {
     res.redirect("/");
   } else {
-    const response = authenticationController.register(req);
-    res.json(response);
-    // res.redirect("/login");
+    let responses = null;
+    response();
+    async function response() {
+      responses = await authenticationController.register(req);
+      res.json(responses);
+    }
   }
 });
 
