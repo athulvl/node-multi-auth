@@ -3,7 +3,7 @@ const storage = require("node-sessionstorage");
 module.exports = (req, res, next) => {
   try {
     const token = req.header("x-auth-token") || storage.getItem("token");
-    if (!token) return res.status(403).send("Access denied.");
+    if (!token) return res.render("admin/register");
 
     const decoded = jwt.verify(token, process.env.JWTPRIVATEKEY);
     req.user = decoded;
