@@ -180,9 +180,19 @@
                   >
                 </a>
               </div>
+              <div
+                class="alert alert-primary error-field d-none text-center"
+                style="color: #696cff !important"
+                role="alert"
+              ></div>
+              <div
+                class="alert alert-success success-field d-none text-center"
+                role="alert"
+              ></div>
               <!-- /Logo -->
 
               <form
+                class="register-form"
                 id="register-form"
                 class="mb-3"
                 method="post"
@@ -211,7 +221,6 @@
                 </div>
                 <div class="mb-3 form-password-toggle">
                   <label class="form-label" for="password">Password</label>
-                  <!-- <div class="input-group input-group-merge"> -->
                   <input
                     type="password"
                     id="password"
@@ -220,16 +229,11 @@
                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                     aria-describedby="password"
                   />
-                  <!-- <span class="input-group-text cursor-pointer"
-                      ><i class="bx bx-hide"></i
-                    ></span> -->
-                  <!-- </div> -->
                 </div>
                 <div class="mb-3 form-password-toggle">
                   <label class="form-label" for="password"
                     >Confirm password</label
                   >
-                  <!-- <div class="input-group input-group-merge"> -->
                   <input
                     type="password"
                     id="confirm_password"
@@ -238,10 +242,6 @@
                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                     aria-describedby="password"
                   />
-                  <!-- <span class="input-group-text cursor-pointer"
-                      ><i class="bx bx-hide"></i
-                    ></span> -->
-                  <!-- </div> -->
                 </div>
                 <button type="submit" class="btn btn-primary d-grid w-100">
                   Sign up
@@ -256,7 +256,6 @@
               </p>
             </div>
           </div>
-          <!-- Register Card -->
         </div>
       </div>
     </div>
@@ -271,95 +270,66 @@
     <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
     <script src="../assets/vendor/js/menu.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- endbuild -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"
-      integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <!-- Vendors JS -->
 
     <!-- Main JS -->
     <script src="../assets/js/main.js"></script>
     <script>
       $(document).ready(function () {
-        var formId = $("#register-form");
-        $("#register-form").validate({
-          rules: {
-            name: {
-              required: true,
-              minlength: 3,
-              maxlength: 20,
+        $("#register-form").submit(function (e) {
+          e.preventDefault();
+          let username = $("#username").val();
+          let email = $("#email").val();
+          let password = $("#password").val();
+          let confirm_password = $("#confirm_password").val();
+          var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+          let error = "";
+          if (username == "") {
+            error = "Username is required!";
+          } else if (email == "") {
+            error = "Email is required!";
+          } else if (!email.match(mailformat)) {
+            error = "You have entered an invalid email address!";
+          } else if (password == "") {
+            error = "Password is required!";
+          } else if (confirm_password == "") {
+            error = "Confirm password is required!";
+          } else if (password != confirm_password) {
+            error = "Password and confirm password must be same!";
+          }
+          if (error != "") {
+            $(".error-field").removeClass("d-none");
+            $(".error-field").html("");
+            $(".error-field").html(error);
+            return false;
+          } else {
+            $(".error-field").addClass("d-none");
+            $(".error-field").html("");
+          }
+          var form = $(this);
+          var actionUrl = form.attr("action");
+          $.ajax({
+            type: "POST",
+            url: actionUrl,
+            data: form.serialize(),
+            success: function (data) {
+              if (data.status == "success") {
+                $(".success-field").html("");
+                $(".success-field").removeClass("d-none");
+                $(".success-field").html(data.message);
+                setTimeout(function () {
+                  window.location.href = "/login";
+                }, 2000);
+              } else {
+                $(".error-field").html("");
+                $(".error-field").removeClass("d-none");
+                $(".error-field").html(data.message);
+              }
             },
-            email: {
-              required: true,
-              email: true,
-              minlength: 3,
-              maxlength: 100,
-            },
-            password: {
-              required: true,
-              minlength: 6,
-              maxlength: 20,
-            },
-            confirm_password: {
-              required: true,
-              minlength: 6,
-              maxlength: 20,
-              equalTo: "#password",
-            },
-          },
-          messages: {
-            name: {
-              required: "Please enter your name",
-              minlength: "Your name must consist of at least 3 characters",
-              maxlength: "Your name must consist of at least 3 characters",
-            },
-            email: {
-              required: "Please enter your email",
-              email: "Please enter a valid email address",
-              minlength: "Your email must consist of at least 3 characters",
-              maxlength: "Your email must consist of at least 3 characters",
-            },
-            password: {
-              required: "Please enter your password",
-              minlength: "Your password must be at least 6 characters long",
-              maxlength: "Your password must be at least 6 characters long",
-            },
-            confirm_password: {
-              required: "Please enter your password",
-              minlength: "Your password must be at least 6 characters long",
-              maxlength: "Your password must be at least 6 characters long",
-              equalTo: "Password does not match",
-            },
-          },
-
-          submitHandler: function (form) {
-            $ajax({
-              url: "/register",
-              type: "POST",
-              data: $(form).serialize(),
-              success: function (response) {
-                console.log(response);
-                if (response.success) {
-                  alert(response.message);
-                } else {
-                  alert(response.message);
-                }
-              },
-              error: function (error) {
-                console.log(error);
-              },
-            });
-          },
+          });
         });
       });
     </script>
-
-    <!-- Page JS -->
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
 </html>
