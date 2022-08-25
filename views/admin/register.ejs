@@ -322,6 +322,8 @@
                   window.location.href = "/login";
                 }, 2000);
               } else {
+                $(".success-field").html("");
+                $(".success-field").addClass("d-none");
                 $(".error-field").html("");
                 $(".error-field").removeClass("d-none");
                 $(".error-field").html(data.message);

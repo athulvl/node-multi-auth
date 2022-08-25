@@ -200,7 +200,7 @@
                 <div class="mb-3 form-password-toggle">
                   <div class="d-flex justify-content-between">
                     <label class="form-label" for="password">Password</label>
-                    <a href="auth-forgot-password-basic.html">
+                    <a href="/forgot-password">
                       <small>Forgot Password?</small>
                     </a>
                   </div>
@@ -216,18 +216,6 @@
                     <span class="input-group-text cursor-pointer"
                       ><i class="bx bx-hide"></i
                     ></span>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="remember-me"
-                    />
-                    <label class="form-check-label" for="remember-me">
-                      Remember Me
-                    </label>
                   </div>
                 </div>
                 <div class="mb-3">
@@ -267,13 +255,27 @@
     <script src="../assets/js/main.js"></script>
     <script>
       $("#login_form").submit(function (e) {
-        e.preventDefault(); // avoid to execute the actual submit of the form.
+        e.preventDefault();
+        let email = $("#email").val();
+        let password = $("#password").val();
+        let error = "";
+        if (email == "") {
+          error = "Email field is required!";
+        } else if (password == "") {
+          error = "Password field is required!";
+        }
+        if (error != "") {
+          $(".error-field").html("");
+          $(".error-field").removeClass("d-none");
+          $(".error-field").html(error);
+          return false;
+        }
         var form = $(this);
         var actionUrl = form.attr("action");
         $.ajax({
           type: "POST",
           url: actionUrl,
-          data: form.serialize(), // serializes the form's elements.
+          data: form.serialize(),
           success: function (data) {
             if (data == true) {
               window.location.href = "/";

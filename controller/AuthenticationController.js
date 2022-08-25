@@ -7,6 +7,8 @@ const MongoClient = require("mongodb").MongoClient;
 const jwt = require("jsonwebtoken");
 const storage = require("node-sessionstorage");
 const userRole = require("../Enums/UserRoles");
+const nodemailer = require("nodemailer");
+const ejs = require("ejs");
 
 async function register(req) {
   let foundUser = await User.aggregate([
@@ -67,7 +69,48 @@ async function login(req) {
   }
 }
 
+async function forgotPassword(req) {
+  const email = req.body.email;
+  try {
+    let foundUser = await User.aggregate([
+      {
+        $match: { email: email },
+      },
+      { $skip: 0 },
+    ]);
+    if (foundUser.length > 0) {
+      let transporter = nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      });
+      let html = ejs.renderFile(
+        "../views/admin/include/forgot_password_email.ejs",
+        {
+          username: "testUsername",
+        }
+      );
+      let info = await transporter.sendMail({
+        from: '"Admin" <admin@example.com>',
+        to: email,
+        subject: "Password recovery mail",
+        html: "test",
+      });
+      console.log("email send");
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+}
+
 module.exports = {
   register: register,
   login: login,
+  forgotPassword: forgotPassword,
 };
