@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const { render } = require("../app");
 const { json } = require("body-parser");
 const MongoClient = require("mongodb").MongoClient;
-
 const jwt = require("jsonwebtoken");
 const storage = require("node-sessionstorage");
 const userRole = require("../Enums/UserRoles");
@@ -48,21 +47,23 @@ async function login(req) {
       },
       { $skip: 0 },
     ]);
-    if (foundUser) {
+    if (foundUser.length > 0) {
       if (bcrypt.compareSync(password, foundUser[0].password)) {
         const token = jwt.sign(
           { _id: foundUser[0]._id },
           process.env.JWTPRIVATEKEY
         );
         storage.setItem("token", token);
+        storage.setItem("role", foundUser[0].role);
+        return true;
       } else {
         return false;
       }
     } else {
-      console.log("User not found");
+      return false;
     }
   } catch (err) {
-    console.error(err);
+    return false;
   }
 }
 

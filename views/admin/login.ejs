@@ -92,7 +92,7 @@
             <div class="card-body">
               <!-- Logo -->
               <div class="app-brand justify-content-center">
-                <a href="index.html" class="app-brand-link gap-2">
+                <a href="#" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
                     <svg
                       width="25"
@@ -180,18 +180,12 @@
                   >
                 </a>
               </div>
-              <!-- /Logo -->
-              <h4 class="mb-2">Welcome to Sneat! 👋</h4>
-              <p class="mb-4">
-                Please sign-in to your account and start the adventure
-              </p>
-
-              <form
-                id="formAuthentication"
-                class="mb-3"
-                action="/login"
-                method="POST"
-              >
+              <div
+                class="alert alert-primary error-field text-center d-none"
+                style="color: #696cff !important"
+                role="alert"
+              ></div>
+              <form id="login_form" class="mb-3" action="/login" method="POST">
                 <div class="mb-3">
                   <label for="email" class="form-label">Email </label>
                   <input
@@ -271,10 +265,26 @@
 
     <!-- Main JS -->
     <script src="../assets/js/main.js"></script>
-
-    <!-- Page JS -->
-
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script>
+      $("#login_form").submit(function (e) {
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        var form = $(this);
+        var actionUrl = form.attr("action");
+        $.ajax({
+          type: "POST",
+          url: actionUrl,
+          data: form.serialize(), // serializes the form's elements.
+          success: function (data) {
+            if (data == true) {
+              window.location.href = "/";
+            } else {
+              $(".error-field").html("");
+              $(".error-field").removeClass("d-none");
+              $(".error-field").html("Incorrect username or password");
+            }
+          },
+        });
+      });
+    </script>
   </body>
 </html>

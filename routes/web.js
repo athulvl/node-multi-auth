@@ -8,6 +8,7 @@ const users = require("../models/UserModel");
 /* GET users listing. */
 
 router.get("/login", function (req, res, next) {
+  console.log(storage.getItem("role"));
   if (storage.getItem("token")) {
     res.redirect("/");
   } else {
@@ -38,13 +39,13 @@ router.post("/register", function (req, res, next) {
 
 router.post("/login", async (req, res, next) => {
   if (storage.getItem("token")) {
-    res.redirect("/");
+    res.json(true);
   } else {
-    const response = authenticationController.login(req);
-    if (response) {
-      res.redirect("/");
-    } else {
-      res.redirect("/login");
+    let responses = null;
+    loginResponse();
+    async function loginResponse() {
+      responses = await authenticationController.login(req);
+      res.json(responses);
     }
   }
 });
@@ -55,6 +56,7 @@ router.get("/", auth, function (req, res, next) {
 
 router.get("/logout", function (req, res, next) {
   storage.removeItem("token");
+  storage.removeItem("role");
   res.redirect("/login");
 });
 module.exports = router;
