@@ -5,7 +5,6 @@ const storage = require("node-sessionstorage");
 const auth = require("../config/middleware");
 const authenticationController = require("../controller/authenticationController");
 const users = require("../models/UserModel");
-const { forgotPassword } = require("../controller/authenticationController");
 /* GET users listing. */
 
 router.get("/login", function (req, res, next) {
@@ -67,7 +66,7 @@ router.get("/forgot-password", function (req, res, next) {
 router.post("/forgot-password", function (req, res, next) {
   forgotPasswordResponse();
   async function forgotPasswordResponse() {
-    let responses = await authenticationController.forgotPassword(req);
+    let responses = await authenticationController.forgotPasswordMail(req);
     res.json(responses);
   }
 });

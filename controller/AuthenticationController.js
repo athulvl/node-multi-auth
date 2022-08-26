@@ -8,7 +8,10 @@ const jwt = require("jsonwebtoken");
 const storage = require("node-sessionstorage");
 const userRole = require("../Enums/UserRoles");
 const nodemailer = require("nodemailer");
-const ejs = require("ejs");
+var fs = require("fs");
+const path = require("path");
+const handlebars = require("handlebars");
+const { v4: uuidv4 } = require("../node_modules/uuid");
 
 async function register(req) {
   let foundUser = await User.aggregate([
@@ -18,7 +21,6 @@ async function register(req) {
     { $skip: 0 },
   ]);
   if (foundUser != "") {
-    console.log("user already exist");
     return { status: "error", message: "User already exists" };
   } else {
     const saltRounds = 10;
@@ -69,7 +71,8 @@ async function login(req) {
   }
 }
 
-async function forgotPassword(req) {
+async function forgotPasswordMail(req) {
+  let random_string = uuidv4();
   const email = req.body.email;
   try {
     let foundUser = await User.aggregate([
@@ -78,7 +81,15 @@ async function forgotPassword(req) {
       },
       { $skip: 0 },
     ]);
+
     if (foundUser.length > 0) {
+      let user = User.updateOne(
+        { _id: foundUser[0]._id },
+        { $set: { reset_password: random_string } },
+        function (err, result) {
+          if (err) throw err;
+        }
+      );
       let transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,
@@ -87,24 +98,29 @@ async function forgotPassword(req) {
           pass: process.env.MAIL_PASSWORD,
         },
       });
-      let html = ejs.renderFile(
-        "../views/admin/include/forgot_password_email.ejs",
-        {
-          username: "testUsername",
-        }
-      );
+      const emailTemplatePath =
+        "../views/admin/include/forgot_password_email.html";
+      const templatePath = path.join(__dirname, emailTemplatePath);
+      const source = fs.readFileSync(templatePath, "utf-8").toString();
+      const template = handlebars.compile(source);
+      const replacements = {
+        password_reset_link:
+          "http://127.0.0.1:3000/forgot-password/reset-password?id=" +
+          random_string,
+      };
+      const finalHtml = template(replacements);
       let info = await transporter.sendMail({
         from: '"Admin" <admin@example.com>',
         to: email,
         subject: "Password recovery mail",
-        html: "test",
+        html: finalHtml,
       });
-      console.log("email send");
       return true;
     } else {
       return false;
     }
   } catch (err) {
+    console.log("im here");
     return false;
   }
 }
@@ -112,5 +128,5 @@ async function forgotPassword(req) {
 module.exports = {
   register: register,
   login: login,
-  forgotPassword: forgotPassword,
+  forgotPasswordMail: forgotPasswordMail,
 };
