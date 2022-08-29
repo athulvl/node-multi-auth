@@ -5,10 +5,11 @@ const storage = require("node-sessionstorage");
 const auth = require("../config/middleware");
 const authenticationController = require("../controller/authenticationController");
 const users = require("../models/UserModel");
+const adminMiddleware = require("../Middlewares/IsAdmin");
+const userMiddleware = require("../Middlewares/IsUser");
 /* GET users listing. */
 
 router.get("/login", function (req, res, next) {
-  console.log(storage.getItem("role"));
   if (storage.getItem("token")) {
     res.redirect("/");
   } else {
@@ -83,8 +84,8 @@ router.get("/reset-password", function (req, res, next) {
 });
 
 router.post("/reset-password", function (req, res, next) {
-  ResetPassword();
-  async function ResetPassword() {
+  resetPassword();
+  async function resetPassword() {
     let responses = await authenticationController.resetPassword(req);
     res.json(responses);
   }
