@@ -9,6 +9,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const auth = require("./config/middleware");
 const session = require("express-session");
+app.locals.assetUrl = process.env.ASSET_URL;
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");

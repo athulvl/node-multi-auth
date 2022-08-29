@@ -1,23 +1,10 @@
 <!DOCTYPE html>
-
-<!-- =========================================================
-* Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
-==============================================================
-
-* Product Page: https://themeselection.com/products/sneat-bootstrap-html-admin-template/
-* Created by: ThemeSelection
-* License: You must have a valid license purchased in order to legally use the theme for your project.
-* Copyright ThemeSelection (https://themeselection.com)
-
-=========================================================
- -->
-<!-- beautify ignore:start -->
 <html
   lang="en"
   class="light-style customizer-hide"
   dir="ltr"
   data-theme="theme-default"
-  data-assets-path="../assets/"
+  data-assets-path="<%=assetUrl%>assets/"
   data-template="vertical-menu-template-free"
 >
   <head>
@@ -27,9 +14,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>
-      Login Basic - Pages | Sneat - Bootstrap 5 HTML Admin Template - Pro
-    </title>
+    <title>Login</title>
 
     <meta name="description" content="" />
 
@@ -37,7 +22,7 @@
     <link
       rel="icon"
       type="image/x-icon"
-      href="../assets/img/favicon/favicon.ico"
+      href="<%=assetUrl%>assets/img/favicon/favicon.ico"
     />
 
     <!-- Fonts -->
@@ -49,36 +34,42 @@
     />
 
     <!-- Icons. Uncomment required icon fonts -->
-    <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+    <link
+      rel="stylesheet"
+      href="<%=assetUrl%>assets/vendor/fonts/boxicons.css"
+    />
 
     <!-- Core CSS -->
     <link
       rel="stylesheet"
-      href="../assets/vendor/css/core.css"
+      href="<%=assetUrl%>assets/vendor/css/core.css"
       class="template-customizer-core-css"
     />
     <link
       rel="stylesheet"
-      href="../assets/vendor/css/theme-default.css"
+      href="<%=assetUrl%>assets/vendor/css/theme-default.css"
       class="template-customizer-theme-css"
     />
-    <link rel="stylesheet" href="../assets/css/demo.css" />
+    <link rel="stylesheet" href="<%=assetUrl%>assets/css/demo.css" />
 
     <!-- Vendors CSS -->
     <link
       rel="stylesheet"
-      href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"
+      href="<%=assetUrl%>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"
     />
 
     <!-- Page CSS -->
     <!-- Page -->
-    <link rel="stylesheet" href="../assets/vendor/css/pages/page-auth.css" />
+    <link
+      rel="stylesheet"
+      href="<%=assetUrl%>assets/vendor/css/pages/page-auth.css"
+    />
     <!-- Helpers -->
-    <script src="../assets/vendor/js/helpers.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/js/helpers.js"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-    <script src="../assets/js/config.js"></script>
+    <script src="<%=assetUrl%>assets/js/config.js"></script>
   </head>
 
   <body>
@@ -200,7 +191,7 @@
                 <div class="mb-3 form-password-toggle">
                   <div class="d-flex justify-content-between">
                     <label class="form-label" for="password">Password</label>
-                    <a href="auth-forgot-password-basic.html">
+                    <a href="/forgot-password">
                       <small>Forgot Password?</small>
                     </a>
                   </div>
@@ -216,18 +207,6 @@
                     <span class="input-group-text cursor-pointer"
                       ><i class="bx bx-hide"></i
                     ></span>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="remember-me"
-                    />
-                    <label class="form-check-label" for="remember-me">
-                      Remember Me
-                    </label>
                   </div>
                 </div>
                 <div class="mb-3">
@@ -253,27 +232,41 @@
     <!-- / Content -->
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
-    <script src="../assets/vendor/libs/jquery/jquery.js"></script>
-    <script src="../assets/vendor/libs/popper/popper.js"></script>
-    <script src="../assets/vendor/js/bootstrap.js"></script>
-    <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/libs/popper/popper.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/js/bootstrap.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
-    <script src="../assets/vendor/js/menu.js"></script>
+    <script src="<%=assetUrl%>assets/vendor/js/menu.js"></script>
     <!-- endbuild -->
 
     <!-- Vendors JS -->
 
     <!-- Main JS -->
-    <script src="../assets/js/main.js"></script>
+    <script src="<%=assetUrl%>assets/js/main.js"></script>
     <script>
       $("#login_form").submit(function (e) {
-        e.preventDefault(); // avoid to execute the actual submit of the form.
+        e.preventDefault();
+        let email = $("#email").val();
+        let password = $("#password").val();
+        let error = "";
+        if (email == "") {
+          error = "Email field is required!";
+        } else if (password == "") {
+          error = "Password field is required!";
+        }
+        if (error != "") {
+          $(".error-field").html("");
+          $(".error-field").removeClass("d-none");
+          $(".error-field").html(error);
+          return false;
+        }
         var form = $(this);
         var actionUrl = form.attr("action");
         $.ajax({
           type: "POST",
           url: actionUrl,
-          data: form.serialize(), // serializes the form's elements.
+          data: form.serialize(),
           success: function (data) {
             if (data == true) {
               window.location.href = "/";

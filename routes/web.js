@@ -59,4 +59,34 @@ router.get("/logout", function (req, res, next) {
   storage.removeItem("role");
   res.redirect("/login");
 });
+
+router.get("/forgot-password", function (req, res, next) {
+  res.render("admin/forgot_password");
+});
+router.post("/forgot-password", function (req, res, next) {
+  forgotPasswordResponse();
+  async function forgotPasswordResponse() {
+    let responses = await authenticationController.forgotPasswordMail(req);
+    res.json(responses);
+  }
+});
+router.get("/reset-password", function (req, res, next) {
+  ResetPasswordPageResponse();
+  async function ResetPasswordPageResponse() {
+    let responses = await authenticationController.resetPasswordPage(req);
+    if (responses) {
+      res.render("admin/reset_password", { reset_password_id: req.query.id });
+    } else {
+      res.render("admin/error/404");
+    }
+  }
+});
+
+router.post("/reset-password", function (req, res, next) {
+  ResetPassword();
+  async function ResetPassword() {
+    let responses = await authenticationController.resetPassword(req);
+    res.json(responses);
+  }
+});
 module.exports = router;
