@@ -131,7 +131,6 @@ async function getResetPasswordPage(req) {
       },
       { $skip: 0 },
     ]);
-    // if (foundUser.length > 0) return true else return false;
     if (foundUser.length > 0) {
       return true;
     }
