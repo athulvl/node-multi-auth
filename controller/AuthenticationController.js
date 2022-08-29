@@ -3,7 +3,9 @@ const database = require("../config/database");
 const bcrypt = require("bcrypt");
 const { render } = require("../app");
 const { json } = require("body-parser");
-const MongoClient = require("mongodb").MongoClient;
+
+const { MongoClient, ObjectID } = require("mongodb");
+
 const jwt = require("jsonwebtoken");
 const storage = require("node-sessionstorage");
 const userRole = require("../Enums/UserRoles");
@@ -83,13 +85,10 @@ async function forgotPasswordMail(req) {
     ]);
 
     if (foundUser.length > 0) {
-      let user = User.updateOne(
-        { _id: foundUser[0]._id },
-        { $set: { reset_password: random_string } },
-        function (err, result) {
-          if (err) throw err;
-        }
-      );
+      const query = { email: email };
+      const update = { $set: { reset_password: random_string } };
+      const options = { upsert: true };
+      await User.updateOne(query, update, options);
       let transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,
@@ -105,8 +104,7 @@ async function forgotPasswordMail(req) {
       const template = handlebars.compile(source);
       const replacements = {
         password_reset_link:
-          "http://127.0.0.1:3000/forgot-password/reset-password?id=" +
-          random_string,
+          process.env.APP_URL + "reset-password?id=" + random_string,
       };
       const finalHtml = template(replacements);
       let info = await transporter.sendMail({
@@ -120,7 +118,52 @@ async function forgotPasswordMail(req) {
       return false;
     }
   } catch (err) {
-    console.log("im here");
+    return false;
+  }
+}
+
+async function getResetPasswordPage(req) {
+  const resetPasswordId = req.query.id;
+  try {
+    let foundUser = await User.aggregate([
+      {
+        $match: { reset_password: resetPasswordId },
+      },
+      { $skip: 0 },
+    ]);
+    // if (foundUser.length > 0) return true else return false;
+    if (foundUser.length > 0) {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function resetPassword(req) {
+  const resetPasswordId = req.body.reset_password_id;
+  try {
+    let foundUser = await User.aggregate([
+      {
+        $match: { reset_password: resetPasswordId },
+      },
+      { $skip: 0 },
+    ]);
+    if (foundUser.length > 0) {
+      const saltRounds = 10;
+      const myPlaintextPassword = req.body.password;
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hash = bcrypt.hashSync(myPlaintextPassword, salt);
+      const query = { reset_password: resetPasswordId };
+      const update = { $set: { password: hash, reset_password: "" } };
+      const options = { upsert: true };
+      await User.updateMany(query, update, options);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
     return false;
   }
 }
@@ -129,4 +172,6 @@ module.exports = {
   register: register,
   login: login,
   forgotPasswordMail: forgotPasswordMail,
+  resetPasswordPage: getResetPasswordPage,
+  resetPassword: resetPassword,
 };

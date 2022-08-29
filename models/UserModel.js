@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    reset_password: {
+      type: String,
+      required: false,
+    },
     created_at: {
       type: Date,
     },
@@ -26,7 +30,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
     },
   },
-  { collation: "users" }
+  { collation: { locale: "en_US", strength: 1 } }
 );
 
 userSchema.methods.generateAuthToken = function () {
